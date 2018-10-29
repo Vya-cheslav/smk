@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  SMK
 //
-//  Created by Вячеслав Рожнов on 11.10.2018.
+//  Created by Вячеслав Рожнов on .10.2018.
 //
 
 import UIKit

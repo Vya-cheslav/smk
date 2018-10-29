@@ -1,0 +1,22 @@
+PODS:
+  - SQLite.swift (0.11.4):
+    - SQLite.swift/standard (= 0.11.4)
+  - SQLite.swift/standard (0.11.4)
+  - SwiftyJSON (4.0.0)
+
+DEPENDENCIES:
+  - SQLite.swift
+  - SwiftyJSON
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - SQLite.swift
+    - SwiftyJSON
+
+SPEC CHECKSUMS:
+  SQLite.swift: 3e3bee21da701b5b9f87c4a672cb54f233505692
+  SwiftyJSON: 070dabdcb1beb81b247c65ffa3a79dbbfb3b48aa
+
+PODFILE CHECKSUM: 082acc5b1417fb2adcb55a08644062a515b3d31e
+
+COCOAPODS: 1.5.3

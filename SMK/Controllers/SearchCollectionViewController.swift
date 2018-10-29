@@ -6,20 +6,38 @@
 //
 
 import UIKit
+import SwiftyJSON
 
 private let reuseIdentifier = "Cell"
 
-class SearchCollectionViewController: UICollectionViewController {
+class SearchCollectionViewController: UIViewController {
+  
+  @IBOutlet weak var titleLable: UILabel!
+  @IBOutlet weak var collectionView: UICollectionView!
+  
+  var listFilm = [Film]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+      
+      collectionView.dataSource = self as? UICollectionViewDataSource
+      collectionView.delegate = self as? UICollectionViewDelegate
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Register cell classes
         self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
+      getData(){ (data, error) in
+        if let error = error {
+          Alerts.show(title: "warning", message: "warning", actionTitle: "warning", form: self)
+          return
+        }
+        self.listFilm = data!
+        DispatchQueue.main.async {
+          self.collectionView.reloadData()
+        }
+      }
+      
         // Do any additional setup after loading the view.
     }
 
@@ -35,24 +53,72 @@ class SearchCollectionViewController: UICollectionViewController {
 
     // MARK: UICollectionViewDataSource
 
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
-    }
+//    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        // #warning Incomplete implementation, return the number of sections
+//        return 1
+//    }
+//
+//
+//    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        // #warning Incomplete implementation, return the number of items
+//        return listFilm.count
+//    }
+//
+//    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! SearchCollectionViewCell
+//
+//        // Configure the cell
+//      cell.layer.borderWidth = 1
+//      cell.layer.borderColor = UIColor.black.cgColor
+//
+//      cell.titleLable.text = listFilm[indexPath.row].title
+//      cell.plotLable.text = "pkSDHFGSHDIOGJSDIOVJJZNJFSD FGHDFJFHDFHGUITHGUHFUGUHSYUDFHHGFUHFGGSCSDVFYXUXDYRCFUAIUFYUCIHCFIYSGCFIYGYFGCYGFSCGFYGF YDGFYRCGCFYUYCFHSUHFIUNSAGFIUSNGFUYISFYFUGFUGNFUHGFCUINSGFUYWGFUSHFUASHFUCGVUYDUCSUFSUFHUSCGHCVUD"
+//        return cell
+//    }
+  
+  func getUrl() -> URL? {
+    var urlComponents = URLComponents()
+    urlComponents.scheme = "http"
+    urlComponents.host = "www.omdbapi.com"
+    urlComponents.queryItems = [
+      URLQueryItem(name: "s", value: "star wars"),
+      URLQueryItem(name: "apikey", value: "1b744d1c"),
+    ]
+    guard let url = urlComponents.url else {return nil}
+    return url
+    //return URLRequest(url: url)
+  }
+  
+  func getData(completion: (([Film]?, Error?) -> Void)? = nil){
+    guard let urlStr = getUrl() else {return}
+    guard let url = URL(string:urlStr.absoluteString) else {return}
+    let session = URLSession.shared
+    let task = session.dataTask(with: url) { (data, response, error) in
+      if let error = error {
+        completion?(nil, error)
+        return
+      }
 
+      //            let json1 = try? JSONSerialization.jsonObject(with: data!, options:
+      //                JSONSerialization.ReadingOptions.allowFragments)
+      //            print(json1)
 
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-        return 0
-    }
+      if let data = data, let json = try? JSON(data: data) {
+        guard json["Response"].boolValue == true else {return}
+        let film = json["Search"].arrayValue.map { Film(json: $0) }//
+print(json)
+        completion?(film, nil)
+        DispatchQueue.main.async {
+          //Friend().saveData(friend)
+          
+        }
 
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
-        // Configure the cell
-    
-        return cell
+      }
+
+      return
     }
+    task.resume()
+  }
 
     // MARK: UICollectionViewDelegate
 
@@ -85,4 +151,19 @@ class SearchCollectionViewController: UICollectionViewController {
     }
     */
 
+}
+
+
+extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    return 1
+  }
+  
+  
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! SearchCollectionViewCell
+    return cell
+  }
+  
+  
 }
